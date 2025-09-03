@@ -1,6 +1,13 @@
-import telebot
-import random
+import os
 from flask import Flask, request
+
+app = Flask(__name__)
+
+# seu código do bot aqui...
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Pega a porta do Render ou usa 5000 como padrão
+    app.run(host="0.0.0.0", port=port)
 
 CHAVE_API = "8378976247:AAGwzpdTg4avT0RyBQnDjT0gFAcYEdRCO74"
 bot = telebot.TeleBot(CHAVE_API)
