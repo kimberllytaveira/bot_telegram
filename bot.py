@@ -1,9 +1,13 @@
 import telebot
 import random
+from flask import Flask, request
 
 CHAVE_API = "8378976247:AAGwzpdTg4avT0RyBQnDjT0gFAcYEdRCO74"
 bot = telebot.TeleBot(CHAVE_API)
 
+# -------------------------
+# Dados do bot
+# -------------------------
 frases = [
     "“Sim, minha força está na solidão. Não tenho medo nem de chuvas tempestivas, nem das grandes ventanias soltas, pois eu também sou o escuro da noite..” – Clarice Lispector",
     "'A leitura é para o intelecto o que o exercício é para o corpo.' – Joseph Addison",
@@ -67,6 +71,9 @@ quiz_perguntas = [
     }
 ]
 
+# -------------------------
+# Handlers do bot
+# -------------------------
 @bot.message_handler(commands=["start", "oi"])
 def responder_inicio(mensagem):
     bot.reply_to(mensagem, "Olá! Aqui é o KindleBot. Use /frase, /clube, /livro, /quiz ou /resumo para interagir!")
@@ -117,5 +124,30 @@ def verificar_resposta(mensagem, pergunta):
 
     bot.send_message(mensagem.chat.id, "Use /quiz para tentar outra pergunta!")
 
-print("🤖 Bot está rodando... Envie /start ou /oi no Telegram")
-bot.infinity_polling()
+# -------------------------
+# Flask para Webhook
+# -------------------------
+app = Flask(__name__)
+WEBHOOK_URL = "https://bot-telegram-r4m4.onrender.com"  # Substitua pela URL do Render
+
+# Remove webhook antigo e define o novo
+bot.remove_webhook()
+bot.set_webhook(url=WEBHOOK_URL)
+
+@app.route("/", methods=["POST"])
+def webhook():
+    json_data = request.get_json()
+    update = telebot.types.Update.de_json(json_data)
+    bot.process_new_updates([update])
+    return "OK", 200
+
+@app.route("/", methods=["GET"])
+def index():
+    return "🤖 KindleBot rodando!"
+
+# -------------------------
+# Rodando Flask
+# -------------------------
+if __name__ == "__main__":
+    import os
+    port
